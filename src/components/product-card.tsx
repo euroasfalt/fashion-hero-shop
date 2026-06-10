@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -7,6 +8,30 @@ import type { Product } from "@/types";
 import { WishlistButton } from "./wishlist-button";
 import { useQuickView } from "./quick-view-provider";
 import { getSellerById } from "@/data/sellers";
+
+function PromotedLabel() {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div
+      className="relative inline-block mt-0.5 mb-0.5"
+      onMouseEnter={() => setVisible(true)}
+      onMouseLeave={() => setVisible(false)}
+    >
+      <div
+        className={cn(
+          "absolute bottom-[calc(100%+4px)] left-0 bg-charcoal text-white text-[11px] whitespace-nowrap px-2.5 py-1.5 rounded pointer-events-none transition-opacity duration-150 z-20",
+          visible ? "opacity-100" : "opacity-0"
+        )}
+      >
+        This is a paid placement
+        <span className="absolute top-full left-4 border-4 border-transparent border-t-charcoal" />
+      </div>
+      <span className="text-[11px] text-warm-gray/60 tracking-[0.02em] cursor-default select-none">
+        Promoted
+      </span>
+    </div>
+  );
+}
 
 interface ProductCardProps {
   product: Product;
@@ -124,6 +149,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               )}
             </p>
           )}
+          {product.isPromoted && <PromotedLabel />}
         </div>
       </Link>
 

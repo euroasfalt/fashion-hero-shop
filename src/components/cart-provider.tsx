@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback } from "react";
 import type { CartItem, Product, ProductColor } from "@/types";
-import { CartDrawer } from "./cart-drawer";
+import { CartDrawer } from "./cart/CartDrawer";
 
 interface CartContextType {
   items: CartItem[];
@@ -80,6 +80,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         items={items}
         onUpdateQuantity={updateQuantity}
         onRemove={removeItem}
+        onAddProduct={addItem}
       />
     </CartContext.Provider>
   );
