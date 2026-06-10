@@ -300,8 +300,17 @@ export default function DashboardPage() {
             <TransactionsTable transactions={transactions} marketingEntries={mktCampaigns} />
           </div>
 
-          <div className="bg-white border border-[#e0dad0] rounded-[3px]">
-            <div className="px-5 py-4 border-b border-[#e0dad0]">
+          <div
+            className="rounded-[14px] overflow-hidden"
+            style={{
+              background: "rgba(255,255,255,0.45)",
+              backdropFilter: "blur(18px)",
+              WebkitBackdropFilter: "blur(18px)",
+              border: "1px solid rgba(255,255,255,0.6)",
+              boxShadow: "0 4px 24px rgba(180,160,130,0.10), inset 0 1px 0 rgba(255,255,255,0.7)",
+            }}
+          >
+            <div className="px-5 py-4 border-b border-[#e0dad0]/60">
               <h3 className="text-[12px] font-medium uppercase tracking-[0.08em] text-[#212121]">
                 Top produkty
               </h3>

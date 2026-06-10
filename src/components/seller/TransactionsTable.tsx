@@ -87,16 +87,18 @@ function DrillDown({ tx, onClose }: DrillDownProps) {
 
 interface MktDrillDownProps {
   entry: MarketingEntry;
+  mktIndex: number;
   onClose: () => void;
 }
 
-function MktDrillDown({ entry, onClose }: MktDrillDownProps) {
+function MktDrillDown({ entry, mktIndex, onClose }: MktDrillDownProps) {
+  const mktId = `#M${String(mktIndex + 1).padStart(4, "0")}`;
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/20" onClick={onClose} />
       <div className="relative bg-white w-full sm:max-w-md rounded-t-[8px] sm:rounded-[4px] shadow-xl p-6 z-10">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-[13px] font-semibold text-[#212121]">Wydatek marketingowy</h3>
+          <h3 className="text-[13px] font-semibold text-[#212121]">Wydatek marketingowy <span className="text-[#b3471f]">{mktId}</span></h3>
           <button onClick={onClose} className="text-[#6b6b6b] hover:text-[#212121] text-[18px] leading-none">×</button>
         </div>
         <div className="grid grid-cols-2 gap-3 text-[12px]">
@@ -122,7 +124,7 @@ function Row({ label, value, valueClass }: { label: string; value: string; value
 export function TransactionsTable({ transactions, marketingEntries = [] }: TransactionsTableProps) {
   const [filter, setFilter] = useState<FilterChip>("all");
   const [selected, setSelected] = useState<Transaction | null>(null);
-  const [selectedMkt, setSelectedMkt] = useState<MarketingEntry | null>(null);
+  const [selectedMkt, setSelectedMkt] = useState<{ entry: MarketingEntry; index: number } | null>(null);
 
   const chips: { id: FilterChip; label: string }[] = [
     { id: "all",       label: "Wszystkie" },
@@ -141,24 +143,47 @@ export function TransactionsTable({ transactions, marketingEntries = [] }: Trans
   const showMkt = filter === "all" || filter === "marketing";
 
   return (
-    <div className="bg-white border border-[#e0dad0] rounded-[3px]">
+    <div
+      className="rounded-[14px] overflow-hidden"
+      style={{
+        background: "rgba(255,255,255,0.45)",
+        backdropFilter: "blur(18px)",
+        WebkitBackdropFilter: "blur(18px)",
+        border: "1px solid rgba(255,255,255,0.6)",
+        boxShadow: "0 4px 24px rgba(180,160,130,0.10), inset 0 1px 0 rgba(255,255,255,0.7)",
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#e0dad0]">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[#e0dad0]/60">
         <h3 className="text-[12px] font-medium uppercase tracking-[0.08em] text-[#212121]">Transakcje</h3>
         <div className="flex gap-1.5 flex-wrap justify-end">
-          {chips.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setFilter(c.id)}
-              className={`text-[10px] uppercase tracking-[0.07em] px-2.5 py-1 rounded-full border transition-colors ${
-                filter === c.id
-                  ? "bg-[#212121] text-white border-[#212121]"
-                  : "text-[#6b6b6b] border-[#e0dad0] hover:border-[#212121]/40"
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
+          {chips.map((c) => {
+            const isActive = filter === c.id;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setFilter(c.id)}
+                className="text-[10px] uppercase tracking-[0.07em] px-2.5 py-1 rounded-full transition-all duration-150"
+                style={isActive ? {
+                  background: "rgba(33,33,33,0.88)",
+                  backdropFilter: "blur(14px)",
+                  WebkitBackdropFilter: "blur(14px)",
+                  border: "1px solid rgba(33,33,33,0.7)",
+                  boxShadow: "0 2px 8px rgba(33,33,33,0.15), inset 0 1px 0 rgba(255,255,255,0.08)",
+                  color: "#fff",
+                } : {
+                  background: "rgba(255,255,255,0.40)",
+                  backdropFilter: "blur(14px)",
+                  WebkitBackdropFilter: "blur(14px)",
+                  border: "1px solid rgba(255,255,255,0.55)",
+                  boxShadow: "0 1px 6px rgba(180,160,130,0.08), inset 0 1px 0 rgba(255,255,255,0.7)",
+                  color: "#4a4a4a",
+                }}
+              >
+                {c.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -176,13 +201,15 @@ export function TransactionsTable({ transactions, marketingEntries = [] }: Trans
           </thead>
           <tbody>
             {/* Marketing rows */}
-            {showMkt && marketingEntries.map((m) => (
+            {showMkt && marketingEntries.map((m, mi) => (
               <tr
                 key={`mkt-${m.id}`}
-                onClick={() => setSelectedMkt(m)}
-                className="border-b border-[#e0dad0]/60 hover:bg-[#f5f4f1] cursor-pointer transition-colors"
+                onClick={() => setSelectedMkt({ entry: m, index: mi })}
+                className="border-b border-[#e0dad0]/60 hover:bg-white/30 cursor-pointer transition-colors"
               >
-                <td className="px-4 py-2.5 text-[11px] text-[#6b6b6b] tabular-nums">—</td>
+                <td className="px-4 py-2.5 text-[11px] text-[#b3471f] tabular-nums font-medium">
+                  #{`M${String(mi + 1).padStart(4, "0")}`}
+                </td>
                 <td className="px-4 py-2.5">
                   <div className="flex items-center gap-2">
                     <span
@@ -219,7 +246,7 @@ export function TransactionsTable({ transactions, marketingEntries = [] }: Trans
               <tr
                 key={tx.id}
                 onClick={() => setSelected(tx)}
-                className="border-b border-[#e0dad0]/60 hover:bg-[#f5f4f1] cursor-pointer transition-colors"
+                className="border-b border-[#e0dad0]/60 hover:bg-white/30 cursor-pointer transition-colors"
               >
                 <td className="px-4 py-2.5 text-[11px] text-[#6b6b6b] tabular-nums">#{tx.id}</td>
                 <td className="px-4 py-2.5">
@@ -257,7 +284,7 @@ export function TransactionsTable({ transactions, marketingEntries = [] }: Trans
       </div>
 
       {selected    && <DrillDown    tx={selected}       onClose={() => setSelected(null)}    />}
-      {selectedMkt && <MktDrillDown entry={selectedMkt} onClose={() => setSelectedMkt(null)} />}
+      {selectedMkt && <MktDrillDown entry={selectedMkt.entry} mktIndex={selectedMkt.index} onClose={() => setSelectedMkt(null)} />}
     </div>
   );
 }

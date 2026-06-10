@@ -68,6 +68,13 @@ export function SalesChart({ gmvByDay, marginByDay, campaigns = [], className }:
     (i) => i % tickEvery === 0 || i === days - 1
   );
 
+  // Real dates: index 0 = (days-1) days ago, index days-1 = today
+  function tickLabel(i: number): string {
+    const d = new Date();
+    d.setDate(d.getDate() - (days - 1 - i));
+    return d.toLocaleDateString("pl-PL", { day: "2-digit", month: "short" }).replace(".", "");
+  }
+
   const gridLines = 4;
   const yTicks = Array.from({ length: gridLines + 1 }, (_, i) =>
     minV + (i / gridLines) * range
@@ -97,7 +104,16 @@ export function SalesChart({ gmvByDay, marginByDay, campaigns = [], className }:
   const tipBelow = hoverMarker ? hoverMarker.y < 80 : false;
 
   return (
-    <div className={`bg-white border border-[#e0dad0] rounded-[3px] px-5 py-4 ${className ?? ""}`}>
+    <div
+      className={`rounded-[14px] px-5 py-4 ${className ?? ""}`}
+      style={{
+        background: "rgba(255,255,255,0.45)",
+        backdropFilter: "blur(18px)",
+        WebkitBackdropFilter: "blur(18px)",
+        border: "1px solid rgba(255,255,255,0.6)",
+        boxShadow: "0 4px 24px rgba(180,160,130,0.10), inset 0 1px 0 rgba(255,255,255,0.7)",
+      }}
+    >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[12px] font-medium uppercase tracking-[0.08em] text-[#212121]">
           Sprzedaż – 30 dni
@@ -157,7 +173,7 @@ export function SalesChart({ gmvByDay, marginByDay, campaigns = [], className }:
           {/* X ticks */}
           {ticks.map((i) => (
             <text key={i} x={toX(i)} y={H - 6} textAnchor="middle" fontSize="9" fill="#6b6b6b">
-              {`D${i + 1}`}
+              {tickLabel(i)}
             </text>
           ))}
 
